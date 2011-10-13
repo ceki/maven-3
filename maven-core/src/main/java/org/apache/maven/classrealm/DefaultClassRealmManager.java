@@ -218,6 +218,9 @@ public class DefaultClassRealmManager
         // imports.put( "com.google.inject.name.*", coreRealm );
         // imports.put( "com.google.inject.spi.*", coreRealm );
         // imports.put( "com.google.inject.util.*", coreRealm );
+
+        // tesla-build-avoidance
+        imports.put( "org.eclipse.tesla.incremental", coreRealm );
     }
 
     /**
