@@ -557,18 +557,17 @@ public class DefaultProjectBuilder
             {
                 ModelBuildingResult result = modelBuilder.build( interimResult.request, interimResult.result );
 
-                MavenProject project = interimResult.listener.getProject();
-                initProject( project, projectIndex, result, profilesXmls );
-
                 List<MavenProject> modules = new ArrayList<MavenProject>();
                 noErrors =
                     build( results, modules, projectIndex, interimResult.modules, request, profilesXmls ) && noErrors;
 
-                projects.addAll( modules );
-                projects.add( project );
-
+                MavenProject project = interimResult.listener.getProject();
                 project.setExecutionRoot( interimResult.root );
                 project.setCollectedProjects( modules );
+                initProject( project, projectIndex, result, profilesXmls );
+
+                projects.addAll( modules );
+                projects.add( project );
 
                 results.add( new DefaultProjectBuildingResult( project, result.getProblems(), null ) );
             }
@@ -622,6 +621,8 @@ public class DefaultProjectBuilder
             project.setInjectedProfileIds( modelId, getProfileIds( result.getActivePomProfiles( modelId ) ) );
         }
 
+        ReactorModelProblemCollector problems = new ReactorModelProblemCollector( result.getProblems(), model );
+
         String modelId = findProfilesXml( result, profilesXmls );
         if ( modelId != null )
         {
@@ -631,6 +632,8 @@ public class DefaultProjectBuilder
                                          ModelProblem.Severity.WARNING, ModelProblem.Version.V30, model, -1, -1, null );
             result.getProblems().add( problem );
         }
+
+        projectBuildingHelper.callDelegates( project, project.getProjectBuildingRequest(), problems );
     }
 
     private String findProfilesXml( ModelBuildingResult result, Map<File, Boolean> profilesXmls )
