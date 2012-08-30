@@ -1,5 +1,15 @@
 Automatic BuildContext injection and lifecycle management
 
+igorf 2012-08-29
+I think far better idea is to introduce general purpose mojo execution
+scope and callbacks to allow maven extensions to manage contribution
+and cleanup of components to the scope. This will cleanly solve current
+problem with circular dependency between tesla and build-avoidance
+source trees and I am sure mojo execution context will be useful for
+other things
+==== 
+
+
 New BuildContext instance is automatically created and associated with each
 project mojo execution and can be injected as a plexus or jsr330 component
 to the mojo itself or any of components directly or indirected used by the
