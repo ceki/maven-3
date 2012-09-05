@@ -22,12 +22,10 @@ package org.apache.maven.cli;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import org.apache.maven.cli.logging.PrintStreamLogger;
 import org.codehaus.plexus.logging.Logger;
@@ -104,75 +102,6 @@ public final class CLIReportingUtils
     private static String reduce( String s )
     {
         return ( s != null ? ( s.startsWith( "${" ) && s.endsWith( "}" ) ? null : s ) : null );
-    }
-
-
-    private static void stats( Date start, Logger logger )
-    {
-        Date finish = new Date();
-
-        long time = finish.getTime() - start.getTime();
-
-        logger.info( "Total time: " + formatTime( time ) );
-
-        logger.info( "Finished at: " + finish );
-
-        //noinspection CallToSystemGC
-        System.gc();
-
-        Runtime r = Runtime.getRuntime();
-
-        logger.info( "Final Memory: " + ( r.totalMemory() - r.freeMemory() ) / MB + "M/" + r.totalMemory() / MB + "M" );
-    }
-
-    private static String formatTime( long ms )
-    {
-        long secs = ms / MS_PER_SEC;
-
-        long min = secs / SEC_PER_MIN;
-
-        secs = secs % SEC_PER_MIN;
-
-        String msg = "";
-
-        if ( min > 1 )
-        {
-            msg = min + " minutes ";
-        }
-        else if ( min == 1 )
-        {
-            msg = "1 minute ";
-        }
-
-        if ( secs > 1 )
-        {
-            msg += secs + " seconds";
-        }
-        else if ( secs == 1 )
-        {
-            msg += "1 second";
-        }
-        else if ( min == 0 )
-        {
-            msg += "< 1 second";
-        }
-        return msg;
-    }
-
-    private static String getFormattedTime( long time )
-    {
-        String pattern = "s.SSS's'";
-        if ( time / 60000L > 0 )
-        {
-            pattern = "m:s" + pattern;
-            if ( time / 3600000L > 0 )
-            {
-                pattern = "H:m" + pattern;
-            }
-        }
-        DateFormat fmt = new SimpleDateFormat( pattern );
-        fmt.setTimeZone( TimeZone.getTimeZone( "UTC" ) );
-        return fmt.format( new Date( time ) );
     }
 
     static Properties getBuildProperties()
