@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import org.apache.maven.cli.logging.PrintStreamLogger;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.Os;
