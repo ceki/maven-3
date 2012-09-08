@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.codehaus.plexus.logging.Logger;
 import org.sonatype.aether.transfer.TransferCancelledException;
 import org.sonatype.aether.transfer.TransferEvent;
 import org.sonatype.aether.transfer.TransferResource;
@@ -40,7 +41,7 @@ public class ConsoleMavenTransferListener
 
     private int lastLength;
 
-    public ConsoleMavenTransferListener( PrintStream out )
+    public ConsoleMavenTransferListener( Logger out )
     {
         super( out );
     }
@@ -70,7 +71,7 @@ public class ConsoleMavenTransferListener
         pad( buffer, pad );
         buffer.append( '\r' );
 
-        out.print( buffer );
+        out.info( buffer.toString() );
     }
 
     private String getStatus( long complete, long total )
@@ -127,7 +128,7 @@ public class ConsoleMavenTransferListener
         StringBuilder buffer = new StringBuilder( 64 );
         pad( buffer, lastLength );
         buffer.append( '\r' );
-        out.print( buffer );
+        out.info( buffer.toString() );
     }
 
 }

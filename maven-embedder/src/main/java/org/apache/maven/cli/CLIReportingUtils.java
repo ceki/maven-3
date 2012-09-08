@@ -21,13 +21,11 @@ package org.apache.maven.cli;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 
-import org.apache.maven.cli.logging.PrintStreamLogger;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.Os;
@@ -49,23 +47,23 @@ public final class CLIReportingUtils
     
     public static final String BUILD_VERSION_PROPERTY = "version";
 
-    public static void showVersion( PrintStream stdout )
+    public static void showVersion( Logger logger )
     {
         Properties properties = getBuildProperties();
-        stdout.println( createMavenVersionString( properties ) );
+        logger.info( createMavenVersionString( properties ) );
         String shortName = reduce( properties.getProperty( "distributionShortName" ) );
 
-        stdout.println( shortName + " home: " + System.getProperty( "maven.home", "<unknown maven home>" ) );
+        logger.info( shortName + " home: " + System.getProperty( "maven.home", "<unknown maven home>" ) );
 
-        stdout.println( "Java version: " + System.getProperty( "java.version", "<unknown java version>" )
+        logger.info( "Java version: " + System.getProperty( "java.version", "<unknown java version>" )
             + ", vendor: " + System.getProperty( "java.vendor", "<unknown vendor>" ) );
 
-        stdout.println( "Java home: " + System.getProperty( "java.home", "<unknown java home>" ) );
+        logger.info( "Java home: " + System.getProperty( "java.home", "<unknown java home>" ) );
 
-        stdout.println( "Default locale: " + Locale.getDefault() + ", platform encoding: "
+        logger.info( "Default locale: " + Locale.getDefault() + ", platform encoding: "
             + System.getProperty( "file.encoding", "<unknown encoding>" ) );
 
-        stdout.println( "OS name: \"" + Os.OS_NAME + "\", version: \"" + Os.OS_VERSION + "\", arch: \"" + Os.OS_ARCH
+        logger.info( "OS name: \"" + Os.OS_NAME + "\", version: \"" + Os.OS_VERSION + "\", arch: \"" + Os.OS_ARCH
             + "\", family: \"" + Os.OS_FAMILY + "\"" );
     }
 
@@ -131,11 +129,6 @@ public final class CLIReportingUtils
 
     public static void showError( Logger logger, String message, Throwable e, boolean showStackTrace )
     {
-        if ( logger == null )
-        {
-            logger = new PrintStreamLogger( System.out );
-        }
-
         if ( showStackTrace )
         {
             logger.error( message, e );

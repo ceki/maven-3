@@ -19,12 +19,12 @@ package org.apache.maven.cli.transfer;
  * under the License.
  */
 
-import java.io.PrintStream;
+import org.codehaus.plexus.logging.Logger;
 
 public class BatchModeMavenTransferListener
     extends AbstractMavenTransferListener
 {
-    public BatchModeMavenTransferListener( PrintStream out )
+    public BatchModeMavenTransferListener( Logger out )
     {
         super( out );
     }

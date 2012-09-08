@@ -115,7 +115,11 @@ public class MavenCli
     private DefaultPlexusContainer container;
 
     private Logger logger;
+    
+    private MavenLoggerManager loggerManager;
 
+    private ILoggerFactory slf4jLoggerFactory;
+    
     private EventSpyDispatcher eventSpyDispatcher;
 
     private ModelProcessor modelProcessor;
@@ -137,6 +141,12 @@ public class MavenCli
     public MavenCli( ClassWorld classWorld )
     {
         this.classWorld = classWorld;
+        //
+        // Create the a logger that can be used until the logging system is completely setup so that we don't have
+        // to do null checks to see what state the logger is in. We will initially set the log level to debug but
+        // we will reset the threshold later according to what the user wants.
+        //
+        this.logger = setupLogger( MavenExecutionRequest.LOGGING_LEVEL_DEBUG );
     }
 
     public static void main( String[] args )
@@ -304,6 +314,13 @@ public class MavenCli
                 System.err.println( e );
             }
         }
+        
+        logger.setThreshold( cliRequest.request.getLoggingLevel() );
+        //
+        // Setup SLF4J as the canonical logger and make the Plexus LoggerManager use it. Switch control over to SLF4J.
+        //
+        loggerManager = new MavenLoggerManager( logger );        
+        slf4jLoggerFactory = new PlexusLoggerFactory( loggerManager );
     }
 
     //
@@ -335,7 +352,7 @@ public class MavenCli
 
         if ( cliRequest.commandLine.hasOption( CLIManager.VERSION ) )
         {
-            CLIReportingUtils.showVersion( System.out );
+            CLIReportingUtils.showVersion( logger );
             throw new ExitException( 0 );
         }
     }
@@ -344,7 +361,7 @@ public class MavenCli
     {
         if ( cliRequest.debug || cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) )
         {
-            CLIReportingUtils.showVersion( System.out );
+            CLIReportingUtils.showVersion( logger );
         }
     }
 
@@ -382,10 +399,6 @@ public class MavenCli
 
         if ( container == null )
         {
-            logger = setupLogger( cliRequest );
-
-            final MavenLoggerManager loggerManager = new MavenLoggerManager( logger ) ;
-
             ContainerConfiguration cc = new DefaultContainerConfiguration()
                 .setClassWorld( cliRequest.classWorld )
                 .setRealm( setupContainerRealm( cliRequest ) )
@@ -398,7 +411,7 @@ public class MavenCli
 
                 protected void configure()
                 {
-                    bind( ILoggerFactory.class ).toInstance( new PlexusLoggerFactory( loggerManager ) );
+                    bind( ILoggerFactory.class ).toInstance( slf4jLoggerFactory );
                 }
 
             } );
@@ -447,7 +460,7 @@ public class MavenCli
         return container;
     }
 
-    private PrintStreamLogger setupLogger( CliRequest cliRequest )
+    private PrintStreamLogger setupLogger( int loggingLevel )
     {
         PrintStreamLogger logger = new PrintStreamLogger( new PrintStreamLogger.Provider()
         {
@@ -457,7 +470,7 @@ public class MavenCli
             }
         } );
 
-        logger.setThreshold( cliRequest.request.getLoggingLevel() );
+        logger.setThreshold( loggingLevel );
 
         return logger;
     }
@@ -917,11 +930,11 @@ public class MavenCli
         }
         else if ( request.isInteractiveMode() )
         {
-            transferListener = new ConsoleMavenTransferListener( System.out );
+            transferListener = new ConsoleMavenTransferListener( logger );
         }
         else
         {
-            transferListener = new BatchModeMavenTransferListener( System.out );
+            transferListener = new BatchModeMavenTransferListener( logger );
         }
 
         ExecutionListener executionListener = new ExecutionEventLogger( logger );
